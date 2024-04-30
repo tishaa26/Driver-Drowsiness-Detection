@@ -1,0 +1,54 @@
+#include <GSM.h>
+
+#define PINNUMBER ""  // If your SIM card has a PIN, define it here
+
+GSM gsmAccess;
+GSM_SMS sms;
+
+char remoteNumber[20];  // Telephone number to send SMS
+char txtMsg[200];
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Start GSM connection
+  bool connected = false;
+  while (!connected) {
+    if (gsmAccess.begin(PINNUMBER) == GSM_READY) {
+      connected = true;
+    } else {
+      Serial.println("Not connected");
+      delay(1000);
+    }
+  }
+  
+  Serial.println("GSM initialized");
+  Serial.println("Enter a mobile number: ");
+  Serial.println();
+}
+
+void loop() {
+  // Read the telephone number from the Serial Monitor
+  readSerial();
+  
+  // Send SMS
+  Serial.println("SENDING SMS");
+  Serial.println();
+  sms.beginSMS(remoteNumber);
+  sms.print("Hello from Arduino!");
+  sms.endSMS();
+  Serial.println("SMS sent successfully");
+  delay(5000);
+}
+
+void readSerial() {
+  int i = 0;
+  while (Serial.available() > 0) {
+    char inChar = Serial.read();
+    if (isDigit(inChar)) {
+      remoteNumber[i] = inChar;
+      i++;
+    }
+  }
+  remoteNumber[i] = '\0';
+}
